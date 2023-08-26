@@ -1,0 +1,78 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum SecurityRole {
+  ADMIN
+  TRAINER
+  MEMBER
+}
+
+enum UserAccountRequestStatus {
+  REQUESTED
+  CONFIRMED
+  DENIED
+}
+
+model UserAccount {
+  id Int @id @default(autoincrement())
+  first_name String
+  last_name String
+  username String @unique
+  email String @unique
+  password_hash String
+  account_request_status UserAccountRequestStatus
+  role SecurityRole @default(MEMBER)
+
+  trainer_for TrainingSession[] @relation(name: "trainer_for")
+  participant_of TrainingSession[] @relation(name: "training_session_participants")
+  training_session_attendance TrainingSessionAttendance[] @relation(name: "training_session_attendance")
+  trainer_reviews_provided TrainerReview[] @relation(name: "trainer_review_provider")
+  trainer_reviews_received TrainerReview[] @relation(name: "trainer_review_receiver")
+}
+
+model TrainingSession {
+  id Int @id @default(autoincrement())
+  start_datetime DateTime @default(now())
+  end_datetime DateTime @default(now())
+
+  trainer UserAccount @relation(name: "trainer_for", fields: [trainer_id], references: [id])
+  trainer_id Int
+  participants UserAccount[] @relation(name: "training_session_participants")
+  attendance TrainingSessionAttendance[] @relation(name: "training_session_attendance")
+
+  @@unique([start_datetime, end_datetime, trainer_id])
+}
+
+model TrainingSessionAttendance {
+  id Int @id @default(autoincrement())
+  attended Boolean @default(false)
+  note String
+
+  training_session TrainingSession @relation(name: "training_session_attendance", fields: [training_session_id], references: [id])
+  training_session_id Int
+  participant UserAccount @relation(name: "training_session_attendance", fields: [participant_id], references: [id])
+  participant_id Int
+
+  @@unique([training_session_id, participant_id])
+}
+
+model TrainerReview {
+  id Int @id @default(autoincrement())
+  reviewer UserAccount @relation(name: "trainer_review_provider", fields: [reviewer_id], references: [id])
+  reviewer_id Int
+  trainer UserAccount @relation(name: "trainer_review_receiver", fields: [trainer_id], references: [id])
+  trainer_id Int
+  review_comment String
+  stars Decimal
+
+  @@unique([reviewer_id, trainer_id])
+}
