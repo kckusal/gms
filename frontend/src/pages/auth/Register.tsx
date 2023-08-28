@@ -54,11 +54,6 @@ const Register: FC = () => {
             <Input type="email" placeholder="john@example.com" />
           </FormControl>
 
-          <FormControl>
-            <FormLabel>Username</FormLabel>
-            <Input type="text" />
-          </FormControl>
-
           <FormControl isRequired>
             <FormLabel>Password</FormLabel>
             <Input type="password" />
