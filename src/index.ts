@@ -1,5 +1,8 @@
+import dotenv from "dotenv";
 import express from "express";
 import usersRouter from "./routes/users";
+
+dotenv.config();
 
 const app = express();
 app.use(express.json());
@@ -16,7 +19,6 @@ app.use((req, res, next) => {
   });
 });
 
-// #6
-app.listen(3000, () =>
-  console.log("REST API server ready at: http://localhost:3000")
-);
+app.listen(3000, () => {
+  console.log("REST API server ready at: http://localhost:3000");
+});
