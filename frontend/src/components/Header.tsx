@@ -14,7 +14,7 @@ const Header: FC = () => {
       zIndex={9999}
       boxShadow="sm"
     >
-      <Box fontSize={[15, 18, 20]}>Gym Management System</Box>
+      <Box fontSize={[15, 18, 20]} mx="auto">Gym Management System</Box>
     </HStack>
   );
 };
