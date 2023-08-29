@@ -6,6 +6,7 @@ import SignIn from "./pages/auth/SignIn";
 import Register from "./pages/auth/Register";
 import ErrorPage from "./pages/ErrorPage";
 import Header from "./components/Header";
+import SignOut from "./pages/auth/SignOut";
 
 function App() {
   return (
@@ -16,6 +17,7 @@ function App() {
 
           <Routes>
             <Route path="/" element={<div>Home page</div>} />
+            <Route path="/auth/signout" Component={SignOut} />
             <Route path="/auth/signin" Component={SignIn} />
             <Route path="/auth/register" Component={Register} />
 

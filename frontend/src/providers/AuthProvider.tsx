@@ -1,5 +1,5 @@
 import React, { FC, useEffect, useState } from "react";
-import { redirect, useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 
 interface AuthContextInterface {
   isSignedIn: boolean;
@@ -9,35 +9,47 @@ interface AuthContextInterface {
   setToken: (token: string | null) => void;
 }
 
-export const AuthContext = React.createContext<AuthContextInterface | null>(
-  null
-);
+export const AuthContext = React.createContext<AuthContextInterface>({
+  isSignedIn: false,
+  token: null,
+  setIsSignedIn: () => {},
+  setToken: () => {},
+});
 
 export const AuthProvider: FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [isSignedIn, setIsSignedIn] = useState(false);
   const [token, setToken] = useState<string | null>(null);
 
-  useEffect(() => {
-    console.log({ location, isSignedIn });
+  console.log({ isSignedIn, token, path: location.pathname });
 
+  useEffect(() => {
+    const tokenFromLocalStorage = localStorage.getItem("auth-token");
+
+    if (tokenFromLocalStorage) {
+      setToken(tokenFromLocalStorage);
+      setIsSignedIn(true);
+    }
+  }, []);
+
+  useEffect(() => {
     const isAuthPagesPath = ["/auth/signin", "/auth/register"].includes(
       location.pathname
     );
 
     if (isSignedIn) {
-      if (isAuthPagesPath) redirect("/");
+      if (isAuthPagesPath) navigate("/");
     } else {
-      if (!isAuthPagesPath) redirect("/auth/signin");
+      if (!isAuthPagesPath) navigate("/auth/signin");
     }
-  }, [isSignedIn, location]);
+  }, [isSignedIn, location, navigate]);
 
   return (
     <AuthContext.Provider
-      value={{ isSignedIn, token, setIsSignedIn, setToken }}
-    >
+      value={{ isSignedIn, token, setIsSignedIn, setToken }}>
       {children}
     </AuthContext.Provider>
   );

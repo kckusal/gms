@@ -11,9 +11,16 @@ import {
   Select,
   VStack,
 } from "@chakra-ui/react";
-import { FC } from "react";
+import { FC, useContext } from "react";
+import { AuthContext } from "../../providers/AuthProvider";
 
 const Register: FC = () => {
+  const { isSignedIn } = useContext(AuthContext);
+
+  if (isSignedIn) {
+    return null;
+  }
+
   return (
     <VStack align="center" justify="center" pt={20}>
       <Card
@@ -21,8 +28,7 @@ const Register: FC = () => {
         maxWidth="380px"
         width="full"
         px={6}
-        py={10}
-      >
+        py={10}>
         <Heading as="h2" textAlign="center">
           Register User
         </Heading>
@@ -35,8 +41,7 @@ const Register: FC = () => {
           onSubmit={(e) => {
             e.preventDefault();
             console.log({ e });
-          }}
-        >
+          }}>
           <HStack spacing={6}>
             <FormControl isRequired>
               <FormLabel>First Name</FormLabel>
