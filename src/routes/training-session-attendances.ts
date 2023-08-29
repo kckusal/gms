@@ -5,24 +5,30 @@ import { sendResponse } from "../utils/response";
 
 const router = express.Router();
 
-//* Fetches all training sessions
+//* Fetches all training session attendance
 router.get(
   "/",
-  authorizeReq({ resource: "training_session", requiredAccess: "read" }),
+  authorizeReq({
+    resource: "training_session_attendance",
+    requiredAccess: "read",
+  }),
   async (req, res) => {
-    const data = await prisma.trainingSession.findMany();
+    const data = await prisma.trainingSessionAttendance.findMany();
 
     return sendResponse(res, 200, { success: true, data });
   },
 );
 
-//* Fetches a specific training session by its ID.
+//* Fetches a specific training session attendance by its ID.
 router.get(
   "/:id",
-  authorizeReq({ resource: "training_session", requiredAccess: "read" }),
+  authorizeReq({
+    resource: "training_session_attendance",
+    requiredAccess: "read",
+  }),
   async (req, res) => {
     const { id } = req.params;
-    const data = await prisma.trainingSession.findFirst({
+    const data = await prisma.trainingSessionAttendance.findFirst({
       where: { id: Number(id) },
     });
 
@@ -30,12 +36,15 @@ router.get(
   },
 );
 
-//* Creates a new training session
+//* Creates a new training session attendance
 router.post(
   "/",
-  authorizeReq({ resource: "training_session", requiredAccess: "create" }),
+  authorizeReq({
+    resource: "training_session_attendance",
+    requiredAccess: "create",
+  }),
   async (req, res) => {
-    const data = await prisma.trainingSession.create({
+    const data = await prisma.trainingSessionAttendance.create({
       data: { ...req.body },
     });
 
@@ -43,13 +52,16 @@ router.post(
   },
 );
 
-//* Updates training session
+//* Updates training session attendance
 router.put(
   "/:id",
-  authorizeReq({ resource: "training_session", requiredAccess: "update" }),
+  authorizeReq({
+    resource: "training_session_attendance",
+    requiredAccess: "update",
+  }),
   async (req, res) => {
     const { id } = req.params;
-    const data = await prisma.trainingSession.update({
+    const data = await prisma.trainingSessionAttendance.update({
       where: { id: Number(id) },
       data: { ...req.body },
     });
@@ -58,13 +70,16 @@ router.put(
   },
 );
 
-//* Deletes a training session by its ID.
+//* Deletes a training session attendance by its ID.
 router.delete(
   "/:id",
-  authorizeReq({ resource: "training_session", requiredAccess: "delete" }),
+  authorizeReq({
+    resource: "training_session_attendance",
+    requiredAccess: "delete",
+  }),
   async (req, res) => {
     const { id } = req.params;
-    const data = await prisma.trainingSession.delete({
+    const data = await prisma.trainingSessionAttendance.delete({
       where: { id: Number(id) },
     });
 

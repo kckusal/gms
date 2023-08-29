@@ -5,24 +5,24 @@ import { sendResponse } from "../utils/response";
 
 const router = express.Router();
 
-//* Fetches all training sessions
+//* Fetches all trainer reviews
 router.get(
   "/",
-  authorizeReq({ resource: "training_session", requiredAccess: "read" }),
+  authorizeReq({ resource: "trainer_review", requiredAccess: "read" }),
   async (req, res) => {
-    const data = await prisma.trainingSession.findMany();
+    const data = await prisma.trainerReview.findMany();
 
     return sendResponse(res, 200, { success: true, data });
   },
 );
 
-//* Fetches a specific training session by its ID.
+//* Fetches a specific training review by its ID.
 router.get(
   "/:id",
-  authorizeReq({ resource: "training_session", requiredAccess: "read" }),
+  authorizeReq({ resource: "trainer_review", requiredAccess: "read" }),
   async (req, res) => {
     const { id } = req.params;
-    const data = await prisma.trainingSession.findFirst({
+    const data = await prisma.trainerReview.findFirst({
       where: { id: Number(id) },
     });
 
@@ -30,12 +30,12 @@ router.get(
   },
 );
 
-//* Creates a new training session
+//* Creates a new trainer review
 router.post(
   "/",
-  authorizeReq({ resource: "training_session", requiredAccess: "create" }),
+  authorizeReq({ resource: "trainer_review", requiredAccess: "create" }),
   async (req, res) => {
-    const data = await prisma.trainingSession.create({
+    const data = await prisma.trainerReview.create({
       data: { ...req.body },
     });
 
@@ -43,13 +43,13 @@ router.post(
   },
 );
 
-//* Updates training session
+//* Updates trainer review
 router.put(
   "/:id",
-  authorizeReq({ resource: "training_session", requiredAccess: "update" }),
+  authorizeReq({ resource: "trainer_review", requiredAccess: "update" }),
   async (req, res) => {
     const { id } = req.params;
-    const data = await prisma.trainingSession.update({
+    const data = await prisma.trainerReview.update({
       where: { id: Number(id) },
       data: { ...req.body },
     });
@@ -58,13 +58,13 @@ router.put(
   },
 );
 
-//* Deletes a training session by its ID.
+//* Deletes a trainer review by its ID.
 router.delete(
   "/:id",
-  authorizeReq({ resource: "training_session", requiredAccess: "delete" }),
+  authorizeReq({ resource: "trainer_review", requiredAccess: "delete" }),
   async (req, res) => {
     const { id } = req.params;
-    const data = await prisma.trainingSession.delete({
+    const data = await prisma.trainerReview.delete({
       where: { id: Number(id) },
     });
 
