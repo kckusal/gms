@@ -1,6 +1,8 @@
 import dotenv from "dotenv";
 import express from "express";
 
+import cors from "./cors";
+
 import authRouter from "./routes/auth";
 import usersRouter from "./routes/users";
 import trainerReviewsRouter from "./routes/trainer-reviews";
@@ -26,6 +28,7 @@ declare global {
 
 const app = express();
 app.use(express.json());
+app.use(cors);
 
 // PUBLIC endpoints:
 app.use("/auth", authRouter);
