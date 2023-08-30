@@ -27,7 +27,9 @@ router.post(
     const { email, password } = req.body;
 
     // Validate if user exist in our database
-    const user = await prisma.userAccount.findFirst({ where: { email } });
+    const user = await prisma.userAccount.findFirst({
+      where: { email, account_request_status: "CONFIRMED" },
+    });
 
     if (user && (await bcrypt.compare(password, user.password_hash))) {
       const authUser: Request["user"] = {
