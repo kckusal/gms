@@ -30,16 +30,18 @@ router.post(
     const user = await prisma.userAccount.findFirst({ where: { email } });
 
     if (user && (await bcrypt.compare(password, user.password_hash))) {
+      const authUser: Request["user"] = {
+        id: user.id,
+        first_name: user.first_name,
+        email: user.email,
+        role: user.role,
+        account_request_status: user.account_request_status,
+      };
+
       // Create token
       const jwtToken = jwt.sign(
         {
-          user: {
-            id: user.id,
-            first_name: user.first_name,
-            email: user.email,
-            role: user.role,
-            account_request_status: user.account_request_status,
-          } satisfies Request["user"],
+          user: authUser,
         },
         process.env.JWT_SECRET_KEY as string,
         {
@@ -49,7 +51,7 @@ router.post(
 
       return sendResponse(res, HttpStatusCode.OK, {
         success: true,
-        data: { jwt: jwtToken },
+        data: { jwt: jwtToken, user: authUser },
       });
     }
 
