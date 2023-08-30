@@ -6,6 +6,8 @@ export const useToastError = () => {
 
   const toaster = useCallback(
     (title: string, description = "", id = "") => {
+      if (id && toast.isActive(id)) return;
+
       toast({
         id,
         title,

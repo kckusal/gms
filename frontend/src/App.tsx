@@ -12,6 +12,7 @@ import { MyProfile } from "./pages/my-profile/MyProfile";
 import { IndexPage } from "./pages/IndexPage";
 
 import { chakraProviderProps } from "./config";
+import { ListUsersPage } from "./pages/users/List";
 
 function App() {
   return (
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/auth/register" Component={Register} />
 
                 <Route path="/my-profile" Component={MyProfile} />
+                <Route path="/users" Component={ListUsersPage} />
 
                 <Route path="*" Component={NotFoundPage} />
               </Routes>

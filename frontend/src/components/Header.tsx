@@ -11,7 +11,7 @@ const Header: FC = () => {
       position="sticky"
       top="0"
       fontWeight="extrabold"
-      zIndex={9999}
+      zIndex={1}
       boxShadow="sm"
     >
       <Box fontSize={[15, 18, 20]} mx="auto">
