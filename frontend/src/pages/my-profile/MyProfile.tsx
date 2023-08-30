@@ -32,13 +32,9 @@ export const MyProfile = () => {
     fetcher
       .fetch("/my/profile")
       .then((res) => {
-        console.log(res);
-
-        if (res?.success && res?.data) {
+        if (res?.data) {
           setProfileData(res.data);
-        } else {
-          throw res;
-        }
+        } else throw res;
       })
       .catch((err) =>
         toastError("Error fetching profile!", err?.message, "fetch-profile")

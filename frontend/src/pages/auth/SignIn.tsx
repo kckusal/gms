@@ -41,21 +41,17 @@ const SignIn: FC = () => {
           { skipToken: true }
         )
         .then((res) => {
-          if (!res.success) {
-            throw new Error(res?.error?.message);
-          } else {
-            toast({
-              id: "signin-status",
-              title: "Signed in successfully!",
-              status: "success",
-              isClosable: true,
-            });
+          toast({
+            id: "signin-status",
+            title: "Signed in successfully!",
+            status: "success",
+            isClosable: true,
+          });
 
-            authData.setData({
-              jwtToken: res?.data?.jwt,
-              user: res?.data?.user,
-            });
-          }
+          authData.setData({
+            jwtToken: res?.data?.jwt,
+            user: res?.data?.user,
+          });
         })
         .catch((err) => {
           console.error(err);

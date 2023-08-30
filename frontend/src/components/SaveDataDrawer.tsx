@@ -15,6 +15,7 @@ import { FC, ReactNode } from "react";
 
 interface Props {
   isCreating?: boolean;
+  isLoading?: boolean;
   title: string;
   fields: Array<{ label: string; render: ReactNode }>;
   onClose: () => void;
@@ -23,6 +24,7 @@ interface Props {
 
 export const SaveDataDrawer: FC<Props> = ({
   isCreating = false,
+  isLoading = false,
   title,
   fields,
   onClose,
@@ -67,7 +69,7 @@ export const SaveDataDrawer: FC<Props> = ({
           </DrawerBody>
 
           <DrawerFooter>
-            <Button type="submit" colorScheme="facebook">
+            <Button type="submit" colorScheme="facebook" isLoading={isLoading}>
               {isCreating ? "Create" : "Save"}
             </Button>
           </DrawerFooter>

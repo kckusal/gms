@@ -16,7 +16,9 @@ const apiFetcher = () => {
       return Promise.reject("Auth token is not configured!");
     }
 
-    return fetch(new URL(apiRoute, import.meta.env.VITE_API_URL), {
+    const url = new URL(apiRoute, import.meta.env.VITE_API_URL);
+
+    return fetch(url, {
       headers: {
         Authorization: `Bearer ${jwtToken}`,
         "Content-Type": "application/json",
@@ -28,9 +30,14 @@ const apiFetcher = () => {
 
       if (responseJson.status === 401) {
         window.location.href = "/auth/signout";
-      } else {
+      } else if (
+        responseJson?.success === false &&
+        responseJson?.error?.message
+      ) {
+        throw Error(responseJson.error.message);
+      } else if (responseJson.success === true) {
         return responseJson;
-      }
+      } else throw responseJson;
     });
   };
 

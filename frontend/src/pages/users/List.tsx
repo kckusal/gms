@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import Table from "rc-table";
 import { User } from "../../types";
 import {
@@ -26,6 +26,7 @@ export const ListUsersPage = () => {
   const [activeDrawer, setActiveDrawer] = useState<"view" | "edit" | null>(
     null
   );
+  const [isSaving, setIsSaving] = useState(false);
   const [activeUser, setActiveUser] = useState<User | null>(null);
   const [users, setUsers] = useState<User[]>([]);
 
@@ -67,7 +68,12 @@ export const ListUsersPage = () => {
       key: "actions",
       align: "left",
       render: (_, record) => (
-        <ButtonGroup variant="solid" size="xs" spacing={3} py={4}>
+        <ButtonGroup
+          variant="solid"
+          size="xs"
+          spacing={3}
+          py={4}
+          isDisabled={isSaving}>
           <IconButton
             colorScheme="blue"
             icon={<FiEye />}
@@ -114,6 +120,28 @@ export const ListUsersPage = () => {
       );
   }, [toastError]);
 
+  const handleSave = useCallback(
+    (values: Record<string, unknown>) => {
+      console.log({ values });
+
+      setIsSaving(true);
+
+      fetcher
+        .fetch(`/users/${activeUser?.id || ""}`, {
+          method: activeUser ? "PUT" : "POST",
+          body: JSON.stringify(values),
+        })
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((err) =>
+          toastError("Error saving user!", err?.message, "crud-users-save")
+        )
+        .finally(() => setIsSaving(false));
+    },
+    [activeUser, toastError]
+  );
+
   return (
     <VStack w="full" bg="#edf3f8" p={50} alignItems="flex-start" gap={8}>
       <Flex align="center" justify="space-between" width="full">
@@ -154,6 +182,7 @@ export const ListUsersPage = () => {
         <SaveDataDrawer
           title={activeUser ? `Editing user #${activeUser?.id}` : "Create user"}
           isCreating={!activeUser}
+          isLoading={isSaving}
           fields={[
             {
               label: "First Name",
@@ -186,6 +215,12 @@ export const ListUsersPage = () => {
                   isRequired
                   w="full"
                 />
+              ),
+            },
+            {
+              label: "Password",
+              render: (
+                <Input name="password" type="password" isRequired w="full" />
               ),
             },
             {
@@ -223,16 +258,16 @@ export const ListUsersPage = () => {
                 </Select>
               ),
             },
-          ]}
+          ].filter((item) => (activeUser ? item.label !== "Password" : true))}
           onClose={() => {
             setActiveDrawer(null);
             setActiveUser(null);
           }}
-          onSubmit={(values) => console.log(values)}
+          onSubmit={handleSave}
         />
       )}
 
-      <Box bg="white" p={4} width="full">
+      <Box bg="white" p={6} width="full">
         <Table columns={columns} data={users ?? []} rowKey="id" />
       </Box>
     </VStack>
