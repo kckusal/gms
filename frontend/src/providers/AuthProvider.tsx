@@ -22,7 +22,9 @@ export const AuthProvider: FC<{ children: React.ReactNode }> = ({
   const location = useLocation();
   const navigate = useNavigate();
   const [isSignedIn, setIsSignedIn] = useState(false);
-  const [token, setToken] = useState<string | null>(null);
+  const [token, setToken] = useState<string | null>(() =>
+    localStorage.getItem("auth-token")
+  );
 
   console.log({ isSignedIn, token, path: location.pathname });
 
