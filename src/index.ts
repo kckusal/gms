@@ -4,6 +4,7 @@ import express from "express";
 import cors from "./cors";
 
 import authRouter from "./routes/auth";
+import myRouter from "./routes/my";
 import usersRouter from "./routes/users";
 import trainerReviewsRouter from "./routes/trainer-reviews";
 import trainingSessionAttendancesRouter from "./routes/training-session-attendances";
@@ -39,6 +40,8 @@ app.use("/users", usersRouter);
 app.use("/trainer-reviews", trainerReviewsRouter);
 app.use("/training-session-attendances", trainingSessionAttendancesRouter);
 app.use("/training-sessions", trainingSessionsRouter);
+
+app.use("/my", myRouter);
 
 app.use((req, res, next) => {
   return sendResponse(res, HttpStatusCode.NOT_FOUND, {
