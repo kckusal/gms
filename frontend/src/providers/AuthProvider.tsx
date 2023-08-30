@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { AuthData } from "../pages/types";
+import { AuthData } from "../types";
 import fetcher from "../utils/fetcher";
 
 interface AuthContextInterface {
