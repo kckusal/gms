@@ -20,3 +20,10 @@ export interface User {
   account_request_status: AccountRequestStatus;
   role: SecurityRole;
 }
+
+export interface TrainingSession {
+  id: number;
+  start_datetime: string;
+  end_datetime: string;
+  trainer_id: number;
+}

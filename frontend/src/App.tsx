@@ -14,6 +14,8 @@ import { IndexPage } from "./pages/IndexPage";
 import { chakraProviderProps } from "./config";
 import { ListUsersPage } from "./pages/users/List";
 
+import { ListTrainingSessionsPage } from "./pages/training-sessions/List";
+
 function App() {
   return (
     <BrowserRouter>
@@ -33,6 +35,10 @@ function App() {
 
                 <Route path="/my-profile" Component={MyProfile} />
                 <Route path="/users" Component={ListUsersPage} />
+                <Route
+                  path="/training-sessions"
+                  Component={ListTrainingSessionsPage}
+                />
 
                 <Route path="*" Component={NotFoundPage} />
               </Routes>
