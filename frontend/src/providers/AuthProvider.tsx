@@ -1,57 +1,69 @@
 import React, { FC, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { AuthData } from "../pages/types";
+import fetcher from "../utils/fetcher";
 
 interface AuthContextInterface {
-  isSignedIn: boolean;
-  token: string | null;
-
-  setIsSignedIn: (value: boolean) => void;
-  setToken: (token: string | null) => void;
+  status: "notFetched" | "fetching" | "fetched" | "fetchError";
+  data: AuthData | null;
+  setData: (data: AuthData | null) => void;
 }
 
 export const AuthContext = React.createContext<AuthContextInterface>({
-  isSignedIn: false,
-  token: null,
-  setIsSignedIn: () => {},
-  setToken: () => {},
+  status: "notFetched",
+  data: { jwtToken: null, user: null },
+  setData: () => {},
 });
+
+const AUTH_DATA_STORAGE_KEY = "auth-data";
+
+const readTokenFromLocalStorage = () => {
+  const data = JSON.parse(
+    localStorage.getItem(AUTH_DATA_STORAGE_KEY) ?? "null"
+  );
+
+  fetcher.setAuthToken(data?.jwtToken);
+  return data;
+};
 
 export const AuthProvider: FC<{ children: React.ReactNode }> = ({
   children,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [isSignedIn, setIsSignedIn] = useState(false);
-  const [token, setToken] = useState<string | null>(() =>
-    localStorage.getItem("auth-token")
-  );
-
-  console.log({ isSignedIn, token, path: location.pathname });
+  const [status, setStatus] =
+    useState<AuthContextInterface["status"]>("notFetched");
+  const [data, setData] = useState<AuthData | null>(readTokenFromLocalStorage);
 
   useEffect(() => {
-    const tokenFromLocalStorage = localStorage.getItem("auth-token");
+    setStatus("fetching");
 
-    if (tokenFromLocalStorage) {
-      setToken(tokenFromLocalStorage);
-      setIsSignedIn(true);
+    if (!data?.user || !data?.jwtToken) {
+      localStorage.removeItem(AUTH_DATA_STORAGE_KEY);
+      return;
     }
-  }, []);
+
+    const authDataStr = JSON.stringify(data);
+    localStorage.setItem(AUTH_DATA_STORAGE_KEY, authDataStr);
+    fetcher.setAuthToken(data?.jwtToken);
+
+    setStatus("fetched");
+  }, [data]);
 
   useEffect(() => {
     const isAuthPagesPath = ["/auth/signin", "/auth/register"].includes(
       location.pathname
     );
 
-    if (isSignedIn) {
+    if (data?.user && data?.jwtToken) {
       if (isAuthPagesPath) navigate("/");
     } else {
       if (!isAuthPagesPath) navigate("/auth/signin");
     }
-  }, [isSignedIn, location, navigate]);
+  }, [data, location, navigate]);
 
   return (
-    <AuthContext.Provider
-      value={{ isSignedIn, token, setIsSignedIn, setToken }}>
+    <AuthContext.Provider value={{ status, data, setData }}>
       {children}
     </AuthContext.Provider>
   );

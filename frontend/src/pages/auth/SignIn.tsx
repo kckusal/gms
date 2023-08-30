@@ -14,10 +14,8 @@ import { FC, FormEvent, useCallback, useContext, useState } from "react";
 import apiFetcher from "../../utils/fetcher";
 import { AuthContext } from "../../providers/AuthProvider";
 
-const { setAuthToken } = apiFetcher;
-
 const SignIn: FC = () => {
-  const { isSignedIn, setIsSignedIn, setToken } = useContext(AuthContext);
+  const authData = useContext(AuthContext);
 
   const [isLoading, setIsLoading] = useState(false);
 
@@ -42,7 +40,6 @@ const SignIn: FC = () => {
           },
           { skipToken: true }
         )
-        .then((res) => res.json())
         .then((res) => {
           if (!res.success) {
             throw new Error(res?.error?.message);
@@ -54,10 +51,10 @@ const SignIn: FC = () => {
               isClosable: true,
             });
 
-            setAuthToken(res?.data?.jwt);
-            localStorage.setItem("auth-token", res?.data?.jwt);
-            setIsSignedIn(true);
-            setToken(res?.data?.jwt);
+            authData.setData({
+              jwtToken: res?.data?.jwt,
+              user: res?.data?.user,
+            });
           }
         })
         .catch((err) => {
@@ -69,13 +66,14 @@ const SignIn: FC = () => {
             status: "error",
             isClosable: true,
           });
+          authData.setData(null);
         })
         .finally(() => setIsLoading(false));
     },
-    [setIsSignedIn, setToken, toast]
+    [authData, toast]
   );
 
-  if (isSignedIn) {
+  if (authData.data?.user) {
     return null;
   }
 

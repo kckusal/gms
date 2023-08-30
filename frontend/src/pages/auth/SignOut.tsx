@@ -3,13 +3,11 @@ import { FC, useContext, useEffect } from "react";
 import { AuthContext } from "../../providers/AuthProvider";
 
 const SignOut: FC = () => {
-  const { setIsSignedIn, setToken } = useContext(AuthContext);
+  const authData = useContext(AuthContext);
 
   useEffect(() => {
-    localStorage.removeItem("auth-token");
-    setIsSignedIn(false);
-    setToken(null);
-  }, [setIsSignedIn, setToken]);
+    authData.setData(null);
+  }, [authData]);
 
   return null;
 };

@@ -15,9 +15,9 @@ import { FC, useContext } from "react";
 import { AuthContext } from "../../providers/AuthProvider";
 
 const Register: FC = () => {
-  const { isSignedIn } = useContext(AuthContext);
+  const authData = useContext(AuthContext);
 
-  if (isSignedIn) {
+  if (authData.data?.user) {
     return null;
   }
 

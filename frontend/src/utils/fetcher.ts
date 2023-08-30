@@ -13,7 +13,7 @@ const apiFetcher = () => {
     const { headers = {}, ...restInit } = init;
 
     if (!options.skipToken && !jwtToken) {
-      throw new Error("Auth token is not configured!");
+      return Promise.reject("Auth token is not configured!");
     }
 
     return fetch(new URL(apiRoute, import.meta.env.VITE_API_URL), {
@@ -23,6 +23,14 @@ const apiFetcher = () => {
         ...headers,
       },
       ...restInit,
+    }).then(async (res) => {
+      const responseJson = await res.json();
+
+      if (responseJson.status === 401) {
+        window.location.href = "/auth/signout";
+      } else {
+        return responseJson;
+      }
     });
   };
 
