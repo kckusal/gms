@@ -40,15 +40,17 @@ model UserAccount {
 
 model TrainingSession {
   id Int @id @default(autoincrement())
-  start_datetime DateTime @default(now())
-  end_datetime DateTime @default(now())
+  start_date String
+  start_HHmm String
+  end_date String
+  end_HHmm String
 
   trainer UserAccount @relation(name: "trainer_for", fields: [trainer_id], references: [id])
   trainer_id Int
   participants UserAccount[] @relation(name: "training_session_participants")
   attendance TrainingSessionAttendance[] @relation(name: "training_session_attendance")
 
-  @@unique([start_datetime, end_datetime, trainer_id])
+  @@unique([trainer_id])
 }
 
 model TrainingSessionAttendance {
