@@ -1,7 +1,7 @@
 import express from "express";
-import prisma from "../lib/prisma";
 import { authorizeReq } from "../middlewares/authorize";
-import { sendResponse } from "../utils/response";
+import { catchAsyncErrors } from "../middlewares/errorHandling";
+import * as tsaController from "../controllers/training-session-attendances";
 
 const router = express.Router();
 
@@ -12,11 +12,7 @@ router.get(
     resource: "training_session_attendance",
     requiredAccess: "read",
   }),
-  async (req, res) => {
-    const data = await prisma.trainingSessionAttendance.findMany();
-
-    return sendResponse(res, 200, { success: true, data });
-  },
+  catchAsyncErrors(tsaController.getAllTrainingSessionAttendances),
 );
 
 //* Fetches a specific training session attendance by its ID.
@@ -26,14 +22,7 @@ router.get(
     resource: "training_session_attendance",
     requiredAccess: "read",
   }),
-  async (req, res) => {
-    const { id } = req.params;
-    const data = await prisma.trainingSessionAttendance.findFirst({
-      where: { id: Number(id) },
-    });
-
-    return sendResponse(res, 200, { success: true, data });
-  },
+  catchAsyncErrors(tsaController.getTrainingSessionAttendanceById),
 );
 
 //* Creates a new training session attendance
@@ -43,13 +32,7 @@ router.post(
     resource: "training_session_attendance",
     requiredAccess: "create",
   }),
-  async (req, res) => {
-    const data = await prisma.trainingSessionAttendance.create({
-      data: { ...req.body },
-    });
-
-    return sendResponse(res, 200, { success: true, data });
-  },
+  catchAsyncErrors(tsaController.createTrainingSessionAttendance),
 );
 
 //* Updates training session attendance
@@ -59,15 +42,7 @@ router.put(
     resource: "training_session_attendance",
     requiredAccess: "update",
   }),
-  async (req, res) => {
-    const { id } = req.params;
-    const data = await prisma.trainingSessionAttendance.update({
-      where: { id: Number(id) },
-      data: { ...req.body },
-    });
-
-    return sendResponse(res, 200, { success: true, data });
-  },
+  catchAsyncErrors(tsaController.updateTrainingSessionAttendance),
 );
 
 //* Deletes a training session attendance by its ID.
@@ -77,14 +52,7 @@ router.delete(
     resource: "training_session_attendance",
     requiredAccess: "delete",
   }),
-  async (req, res) => {
-    const { id } = req.params;
-    const data = await prisma.trainingSessionAttendance.delete({
-      where: { id: Number(id) },
-    });
-
-    return sendResponse(res, 200, { success: true, data });
-  },
+  catchAsyncErrors(tsaController.deleteTrainingSessionAttendance),
 );
 
 export default router;
