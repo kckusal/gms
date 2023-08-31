@@ -1,6 +1,4 @@
-import { useForm } from "react-hook-form";
 import {
-  FormErrorMessage,
   FormLabel,
   FormControl,
   Input,
@@ -16,12 +14,6 @@ import { User } from "../../types";
 import { useToastError } from "../../hooks/useToastError";
 
 export const MyProfile = () => {
-  const {
-    handleSubmit,
-    register,
-    formState: { errors, isSubmitting },
-  } = useForm();
-
   const toastError = useToastError();
 
   const [isLoading, setIsLoading] = useState(false);
@@ -42,61 +34,80 @@ export const MyProfile = () => {
       .finally(() => setIsLoading(false));
   }, [toastError]);
 
-  const onSubmit = useCallback(() => {}, []);
+  const onSaveProfile = useCallback(
+    (values: Record<string, unknown>) => {
+      fetcher
+        .fetch("/my/profile", {
+          method: "PUT",
+          body: JSON.stringify(values),
+        })
+        .then(() => {
+          window.location.reload();
+        })
+        .catch((e) =>
+          toastError("Error saving profile!", e?.message, "save-profile-error")
+        );
+    },
+    [toastError]
+  );
 
   return (
     <RequireAuth>
       <Box p={12}>
-        <form onSubmit={handleSubmit(onSubmit)}>
+        <form
+          autoComplete="new-form"
+          onSubmit={(e) => {
+            e.preventDefault();
+            const formData = new FormData(e.currentTarget);
+            onSaveProfile(Object.fromEntries(formData));
+          }}>
           <Heading mb={4}>My Profile</Heading>
 
           <VStack mt={8} mb={3} spacing={4} maxW={360}>
-            <FormControl isInvalid={!!errors.first_name} isRequired>
+            <FormControl isRequired>
               <FormLabel htmlFor="first_name">First name</FormLabel>
               <Input
                 id="first_name"
                 placeholder="First name"
                 defaultValue={profileData?.first_name}
-                {...register("first_name", {
-                  value: profileData?.first_name,
-                  minLength: {
-                    value: 4,
-                    message: "Minimum length should be 4",
-                  },
-                })}
+                name="first_name"
                 bg="white"
               />
-              <FormErrorMessage>
-                {errors.first_name?.message?.toString() || ""}
-              </FormErrorMessage>
             </FormControl>
 
-            <FormControl isInvalid={!!errors.last_name}>
+            <FormControl>
               <FormLabel htmlFor="last_name">Last name</FormLabel>
               <Input
                 id="last_name"
                 placeholder="Last name"
                 defaultValue={profileData?.last_name}
-                {...register("last_name")}
+                name="last_name"
                 bg="white"
               />
-              <FormErrorMessage>
-                {errors.last_name?.message?.toString() || ""}
-              </FormErrorMessage>
             </FormControl>
 
-            <FormControl isInvalid={!!errors.email}>
+            <FormControl isRequired>
               <FormLabel htmlFor="email">Email</FormLabel>
               <Input
                 id="email"
+                type="email"
                 placeholder="test@example.com"
                 defaultValue={profileData?.email}
-                {...register("email")}
+                name="email"
                 bg="white"
               />
-              <FormErrorMessage>
-                {errors.email?.message?.toString() || ""}
-              </FormErrorMessage>
+            </FormControl>
+
+            <FormControl>
+              <FormLabel htmlFor="password">New Password</FormLabel>
+              <Input
+                id="password"
+                type="password"
+                name="password"
+                bg="white"
+                autoComplete="new-password"
+                defaultValue={""}
+              />
             </FormControl>
 
             <FormControl>
@@ -117,7 +128,7 @@ export const MyProfile = () => {
           <Button
             mt={4}
             colorScheme="facebook"
-            isLoading={isLoading || isSubmitting}
+            isLoading={isLoading}
             type="submit">
             Save
           </Button>

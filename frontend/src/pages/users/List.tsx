@@ -20,6 +20,7 @@ import { useToastError } from "../../hooks/useToastError";
 import { ViewDataDrawer } from "../../components/ViewDataDrawer";
 import { ColumnType } from "rc-table/lib/interface";
 import { SaveDataDrawer } from "../../components/SaveDataDrawer";
+import { RequireAuth } from "../../components/RequireAuth";
 
 export const ListUsersPage = () => {
   const toastError = useToastError();
@@ -143,133 +144,142 @@ export const ListUsersPage = () => {
   );
 
   return (
-    <VStack w="full" bg="#edf3f8" p={50} alignItems="flex-start" gap={8}>
-      <Flex align="center" justify="space-between" width="full">
-        <Heading>All users</Heading>
+    <RequireAuth>
+      <VStack w="full" bg="#edf3f8" p={50} alignItems="flex-start" gap={8}>
+        <Flex align="center" justify="space-between" width="full">
+          <Heading>All users</Heading>
 
-        <Button
-          size="sm"
-          colorScheme="facebook"
-          onClick={() => {
-            setActiveUser(null);
-            setActiveDrawer("edit");
-          }}>
-          Create New
-        </Button>
-      </Flex>
+          <Button
+            size="sm"
+            colorScheme="facebook"
+            onClick={() => {
+              setActiveUser(null);
+              setActiveDrawer("edit");
+            }}>
+            Create New
+          </Button>
+        </Flex>
 
-      {activeDrawer === "view" && activeUser && (
-        <ViewDataDrawer
-          title={`Viewing user  #${activeUser.id}`}
-          fields={[
-            { label: "First Name", content: activeUser.first_name },
-            { label: "Last Name", content: activeUser.last_name },
-            { label: "Email", content: activeUser.email },
-            { label: "Role", content: activeUser.role },
-            {
-              label: "Account Request Status",
-              content: activeUser.account_request_status,
-            },
-          ]}
-          onClose={() => {
-            setActiveDrawer(null);
-            setActiveUser(null);
-          }}
-        />
-      )}
+        {activeDrawer === "view" && activeUser && (
+          <ViewDataDrawer
+            title={`Viewing user  #${activeUser.id}`}
+            fields={[
+              { label: "First Name", content: activeUser.first_name },
+              { label: "Last Name", content: activeUser.last_name },
+              { label: "Email", content: activeUser.email },
+              { label: "Role", content: activeUser.role },
+              {
+                label: "Account Request Status",
+                content: activeUser.account_request_status,
+              },
+            ]}
+            onClose={() => {
+              setActiveDrawer(null);
+              setActiveUser(null);
+            }}
+          />
+        )}
 
-      {activeDrawer === "edit" && (
-        <SaveDataDrawer
-          title={activeUser ? `Editing user #${activeUser?.id}` : "Create user"}
-          isCreating={!activeUser}
-          isLoading={isSaving}
-          fields={[
-            {
-              label: "First Name",
-              render: (
-                <Input
-                  name="first_name"
-                  defaultValue={activeUser?.first_name}
-                  isRequired
-                  w="full"
-                />
-              ),
-            },
-            {
-              label: "Last Name",
-              render: (
-                <Input
-                  name="last_name"
-                  defaultValue={activeUser?.last_name}
-                  w="full"
-                />
-              ),
-            },
-            {
-              label: "Email",
-              render: (
-                <Input
-                  name="email"
-                  type="email"
-                  defaultValue={activeUser?.email}
-                  isRequired
-                  w="full"
-                />
-              ),
-            },
-            {
-              label: "Password",
-              render: (
-                <Input name="password" type="password" isRequired w="full" />
-              ),
-            },
-            {
-              label: "Role",
-              render: (
-                <Select defaultValue={activeUser?.role} isRequired name="role">
-                  <option value="">Select one</option>
-                  {(
-                    ["ADMIN", "TRAINER", "MEMBER"] satisfies Array<User["role"]>
-                  ).map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </Select>
-              ),
-            },
-            {
-              label: "Account Request Status",
-              render: (
-                <Select
-                  defaultValue={activeUser?.account_request_status}
-                  isRequired
-                  name="account_request_status">
-                  <option value="">Select one</option>
-                  {(
-                    ["REQUESTED", "CONFIRMED", "DENIED"] satisfies Array<
-                      User["account_request_status"]
-                    >
-                  ).map((value) => (
-                    <option key={value} value={value}>
-                      {value}
-                    </option>
-                  ))}
-                </Select>
-              ),
-            },
-          ].filter((item) => (activeUser ? item.label !== "Password" : true))}
-          onClose={() => {
-            setActiveDrawer(null);
-            setActiveUser(null);
-          }}
-          onSubmit={handleSave}
-        />
-      )}
+        {activeDrawer === "edit" && (
+          <SaveDataDrawer
+            title={
+              activeUser ? `Editing user #${activeUser?.id}` : "Create user"
+            }
+            isCreating={!activeUser}
+            isLoading={isSaving}
+            fields={[
+              {
+                label: "First Name",
+                render: (
+                  <Input
+                    name="first_name"
+                    defaultValue={activeUser?.first_name}
+                    isRequired
+                    w="full"
+                  />
+                ),
+              },
+              {
+                label: "Last Name",
+                render: (
+                  <Input
+                    name="last_name"
+                    defaultValue={activeUser?.last_name}
+                    w="full"
+                  />
+                ),
+              },
+              {
+                label: "Email",
+                render: (
+                  <Input
+                    name="email"
+                    type="email"
+                    defaultValue={activeUser?.email}
+                    isRequired
+                    w="full"
+                  />
+                ),
+              },
+              {
+                label: "Password",
+                render: (
+                  <Input name="password" type="password" isRequired w="full" />
+                ),
+              },
+              {
+                label: "Role",
+                render: (
+                  <Select
+                    defaultValue={activeUser?.role}
+                    isRequired
+                    name="role">
+                    <option value="">Select one</option>
+                    {(
+                      ["ADMIN", "TRAINER", "MEMBER"] satisfies Array<
+                        User["role"]
+                      >
+                    ).map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </Select>
+                ),
+              },
+              {
+                label: "Account Request Status",
+                render: (
+                  <Select
+                    defaultValue={activeUser?.account_request_status}
+                    isRequired
+                    name="account_request_status">
+                    <option value="">Select one</option>
+                    {(
+                      ["REQUESTED", "CONFIRMED", "DENIED"] satisfies Array<
+                        User["account_request_status"]
+                      >
+                    ).map((value) => (
+                      <option key={value} value={value}>
+                        {value}
+                      </option>
+                    ))}
+                  </Select>
+                ),
+              },
+            ].filter((item) => (activeUser ? item.label !== "Password" : true))}
+            onClose={() => {
+              setActiveDrawer(null);
+              setActiveUser(null);
+            }}
+            onSubmit={handleSave}
+          />
+        )}
 
-      <Box bg="white" p={6} width="full">
-        <Table columns={columns} data={users ?? []} rowKey="id" />
-      </Box>
-    </VStack>
+        <Box bg="white" p={6} width="full">
+          <Table columns={columns} data={users ?? []} rowKey="id" />
+        </Box>
+      </VStack>
+    </RequireAuth>
   );
 };
