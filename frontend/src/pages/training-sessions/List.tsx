@@ -20,7 +20,7 @@ import { ViewDataDrawer } from "../../components/ViewDataDrawer";
 import { ColumnType } from "rc-table/lib/interface";
 import { SaveDataDrawer } from "../../components/SaveDataDrawer";
 import { DatePicker } from "../../components/form/DatePicker";
-import { displayISODate, getISODateString } from "../../utils/date";
+import { TimePicker } from "../../components/form/TimePicker";
 
 export const ListTrainingSessionsPage = () => {
   const toastError = useToastError();
@@ -39,30 +39,34 @@ export const ListTrainingSessionsPage = () => {
       key: "id",
       align: "left",
       render: (_, record) => <Box py={2}>{record.id}</Box>,
-      width: 120,
+      width: 60,
     },
     {
       title: "Trainer ID",
       key: "trainer",
       align: "left",
       render: (_, record) => <Box py={2}>{record.trainer_id}</Box>,
-      width: 200,
+      width: 100,
     },
     {
-      title: "Start Date",
+      title: "Start DateTime",
       key: "start_dt",
       align: "left",
       render: (_, record) => (
-        <Box py={2}>{displayISODate(record.start_datetime)}</Box>
+        <Box py={2} fontSize="sm">
+          {`${record.start_date} ${record.start_HHmm}`}
+        </Box>
       ),
       width: 200,
     },
     {
-      title: "End Date",
+      title: "End DateTime",
       key: "end_dt",
       align: "left",
       render: (_, record) => (
-        <Box py={2}>{displayISODate(record.end_datetime)}</Box>
+        <Box py={2} fontSize="sm">
+          {`${record.end_date} ${record.end_HHmm}`}
+        </Box>
       ),
       width: 200,
     },
@@ -103,7 +107,7 @@ export const ListTrainingSessionsPage = () => {
           />
         </ButtonGroup>
       ),
-      width: 200,
+      width: 80,
     },
   ];
 
@@ -129,18 +133,17 @@ export const ListTrainingSessionsPage = () => {
 
   const handleSave = useCallback(
     (values: Record<string, unknown>) => {
-      const { start_datetime, end_datetime } =
+      const { start_date, end_date, start_HHmm, end_HHmm } =
         values as unknown as TrainingSession;
-      const requestBody: Partial<TrainingSession> = {
-        ...values,
 
+      console.log(values);
+
+      const requestBody: Partial<TrainingSession> = {
         trainer_id: Number(values.trainer_id),
-        ...(start_datetime && {
-          start_datetime: getISODateString(start_datetime),
-        }),
-        ...(end_datetime && {
-          end_datetime: getISODateString(end_datetime),
-        }),
+        start_date,
+        start_HHmm,
+        end_date,
+        end_HHmm,
       };
       console.log({ requestBody });
 
@@ -161,6 +164,8 @@ export const ListTrainingSessionsPage = () => {
     },
     [activeRecord, toastError]
   );
+
+  console.log(records);
 
   return (
     <VStack w="full" bg="#edf3f8" p={50} alignItems="flex-start" gap={8}>
@@ -184,12 +189,12 @@ export const ListTrainingSessionsPage = () => {
           fields={[
             { label: "Trainer", content: activeRecord.trainer_id },
             {
-              label: "Start Date",
-              content: displayISODate(activeRecord.start_datetime),
+              label: "Start DateTime",
+              content: `${activeRecord.start_date} ${activeRecord.start_HHmm}`,
             },
             {
-              label: "End Date",
-              content: displayISODate(activeRecord.end_datetime),
+              label: "End DateTime",
+              content: `${activeRecord.end_date} ${activeRecord.end_HHmm}`,
             },
           ]}
           onClose={() => {
@@ -225,9 +230,21 @@ export const ListTrainingSessionsPage = () => {
               render: (
                 <>
                   <DatePicker
-                    name="start_datetime"
+                    name="start_date"
                     isRequired
-                    defaultValue={activeRecord?.start_datetime}
+                    defaultValue={activeRecord?.start_date}
+                  />
+                </>
+              ),
+            },
+            {
+              label: "Start Time",
+              render: (
+                <>
+                  <TimePicker
+                    name="start_HHmm"
+                    isRequired
+                    defaultValue={activeRecord?.start_HHmm}
                   />
                 </>
               ),
@@ -237,9 +254,21 @@ export const ListTrainingSessionsPage = () => {
               render: (
                 <>
                   <DatePicker
-                    name="end_datetime"
+                    name="end_date"
                     isRequired
-                    defaultValue={activeRecord?.end_datetime}
+                    defaultValue={activeRecord?.end_date}
+                  />
+                </>
+              ),
+            },
+            {
+              label: "End Time",
+              render: (
+                <>
+                  <TimePicker
+                    name="end_HHmm"
+                    isRequired
+                    defaultValue={activeRecord?.end_HHmm}
                   />
                 </>
               ),

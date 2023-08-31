@@ -23,7 +23,9 @@ export interface User {
 
 export interface TrainingSession {
   id: number;
-  start_datetime: string;
-  end_datetime: string;
+  start_date: string;
+  start_HHmm: string;
+  end_date: string;
+  end_HHmm: string;
   trainer_id: number;
 }
