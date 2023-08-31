@@ -16,20 +16,20 @@ import { FiEye } from "react-icons/fi";
 import { BsFillTrashFill } from "react-icons/bs";
 import { AiFillEdit } from "react-icons/ai";
 import fetcher from "../../utils/fetcher";
-import { useToastError } from "../../hooks/useToastError";
+import { useToastNotify } from "../../hooks/useToastNotify";
 import { ViewDataDrawer } from "../../components/ViewDataDrawer";
 import { ColumnType } from "rc-table/lib/interface";
 import { SaveDataDrawer } from "../../components/SaveDataDrawer";
 import { RequireAuth } from "../../components/RequireAuth";
 
 export const ListUsersPage = () => {
-  const toastError = useToastError();
+  const { toastError, toastSuccess } = useToastNotify();
   const [activeDrawer, setActiveDrawer] = useState<"view" | "edit" | null>(
     null
   );
   const [isSaving, setIsSaving] = useState(false);
   const [activeUser, setActiveUser] = useState<User | null>(null);
-  const [users, setUsers] = useState<User[]>([]);
+  const [users, setUsers] = useState<null | User[]>(null);
 
   const columns: ColumnType<User>[] = [
     {
@@ -106,6 +106,7 @@ export const ListUsersPage = () => {
   ];
 
   useEffect(() => {
+    if (users) return;
     fetcher
       .fetch("/users")
       .then((res) => {
@@ -119,7 +120,7 @@ export const ListUsersPage = () => {
       .catch((err) =>
         toastError("Error fetching users data!", err?.message, "fetch-users")
       );
-  }, [toastError]);
+  }, [toastError, users]);
 
   const handleSave = useCallback(
     (values: Record<string, unknown>) => {
@@ -133,14 +134,15 @@ export const ListUsersPage = () => {
           body: JSON.stringify(values),
         })
         .then(() => {
-          window.location.reload();
+          toastSuccess("User details saved.", "", "crud-users-save");
+          setUsers(null);
         })
         .catch((err) =>
           toastError("Error saving user!", err?.message, "crud-users-save")
         )
         .finally(() => setIsSaving(false));
     },
-    [activeUser, toastError]
+    [activeUser, toastError, toastSuccess]
   );
 
   return (

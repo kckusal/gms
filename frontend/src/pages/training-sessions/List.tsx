@@ -15,7 +15,7 @@ import { FiEye } from "react-icons/fi";
 import { BsFillTrashFill } from "react-icons/bs";
 import { AiFillEdit } from "react-icons/ai";
 import fetcher from "../../utils/fetcher";
-import { useToastError } from "../../hooks/useToastError";
+import { useToastNotify } from "../../hooks/useToastNotify";
 import { ViewDataDrawer } from "../../components/ViewDataDrawer";
 import { ColumnType } from "rc-table/lib/interface";
 import { SaveDataDrawer } from "../../components/SaveDataDrawer";
@@ -23,7 +23,7 @@ import { DatePicker } from "../../components/form/DatePicker";
 import { TimePicker } from "../../components/form/TimePicker";
 
 export const ListTrainingSessionsPage = () => {
-  const toastError = useToastError();
+  const { toastError, toastSuccess } = useToastNotify();
   const [activeDrawer, setActiveDrawer] = useState<"view" | "edit" | null>(
     null
   );
@@ -31,7 +31,7 @@ export const ListTrainingSessionsPage = () => {
   const [activeRecord, setActiveRecord] = useState<TrainingSession | null>(
     null
   );
-  const [records, setRecords] = useState<TrainingSession[]>([]);
+  const [records, setRecords] = useState<null | TrainingSession[]>(null);
 
   const columns: ColumnType<TrainingSession>[] = [
     {
@@ -112,6 +112,8 @@ export const ListTrainingSessionsPage = () => {
   ];
 
   useEffect(() => {
+    if (records) return;
+
     fetcher
       .fetch("/training-sessions")
       .then((res) => {
@@ -129,7 +131,7 @@ export const ListTrainingSessionsPage = () => {
           "fetch-training-sessions"
         )
       );
-  }, [toastError]);
+  }, [toastError, records]);
 
   const handleSave = useCallback(
     (values: Record<string, unknown>) => {
@@ -155,17 +157,20 @@ export const ListTrainingSessionsPage = () => {
           body: JSON.stringify(requestBody),
         })
         .then(() => {
-          window.location.reload();
+          toastSuccess(
+            "Training session details saved!",
+            "",
+            "crud-record-save"
+          );
+          setRecords(null);
         })
         .catch((err) =>
           toastError("Error saving record!", err?.message, "crud-record-save")
         )
         .finally(() => setIsSaving(false));
     },
-    [activeRecord, toastError]
+    [activeRecord, toastError, toastSuccess]
   );
-
-  console.log(records);
 
   return (
     <VStack w="full" bg="#edf3f8" p={50} alignItems="flex-start" gap={8}>

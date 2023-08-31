@@ -11,15 +11,16 @@ import { RequireAuth } from "../../components/RequireAuth";
 import { useCallback, useEffect, useState } from "react";
 import fetcher from "../../utils/fetcher";
 import { User } from "../../types";
-import { useToastError } from "../../hooks/useToastError";
+import { useToastNotify } from "../../hooks/useToastNotify";
 
 export const MyProfile = () => {
-  const toastError = useToastError();
+  const { toastError, toastSuccess } = useToastNotify();
 
   const [isLoading, setIsLoading] = useState(false);
   const [profileData, setProfileData] = useState<User | null>(null);
 
   useEffect(() => {
+    if (profileData) return;
     setIsLoading(true);
     fetcher
       .fetch("/my/profile")
@@ -32,7 +33,7 @@ export const MyProfile = () => {
         toastError("Error fetching profile!", err?.message, "fetch-profile")
       )
       .finally(() => setIsLoading(false));
-  }, [toastError]);
+  }, [toastError, profileData]);
 
   const onSaveProfile = useCallback(
     (values: Record<string, unknown>) => {
@@ -42,13 +43,14 @@ export const MyProfile = () => {
           body: JSON.stringify(values),
         })
         .then(() => {
-          window.location.reload();
+          setProfileData(null);
+          toastSuccess("Profile saved.", "", "save-profile");
         })
         .catch((e) =>
-          toastError("Error saving profile!", e?.message, "save-profile-error")
+          toastError("Error saving profile!", e?.message, "save-profile")
         );
     },
-    [toastError]
+    [toastError, toastSuccess]
   );
 
   return (

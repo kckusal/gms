@@ -7,19 +7,19 @@ import {
   Input,
   Link,
   VStack,
-  useToast,
 } from "@chakra-ui/react";
 import { FC, FormEvent, useCallback, useContext, useState } from "react";
 
 import apiFetcher from "../../utils/fetcher";
 import { AuthContext } from "../../providers/AuthProvider";
+import { useToastNotify } from "../../hooks/useToastNotify";
 
 const SignIn: FC = () => {
   const authData = useContext(AuthContext);
 
   const [isLoading, setIsLoading] = useState(false);
 
-  const toast = useToast();
+  const { toastError, toastSuccess } = useToastNotify();
 
   const onSubmit = useCallback(
     async (e: FormEvent<HTMLFormElement>) => {
@@ -30,7 +30,6 @@ const SignIn: FC = () => {
       const password = data.get("password");
 
       setIsLoading(true);
-      toast.close("signin-status");
       apiFetcher
         .fetch(
           "/auth/signin",
@@ -41,12 +40,7 @@ const SignIn: FC = () => {
           { skipToken: true }
         )
         .then((res) => {
-          toast({
-            id: "signin-status",
-            title: "Signed in successfully!",
-            status: "success",
-            isClosable: true,
-          });
+          toastSuccess("Signed in successfully!", "", "signin-request");
 
           authData.setData({
             jwtToken: res?.data?.jwt,
@@ -55,18 +49,13 @@ const SignIn: FC = () => {
         })
         .catch((err) => {
           console.error(err);
-          toast({
-            id: "signin-status",
-            title: "Failed to sign in",
-            description: err?.message,
-            status: "error",
-            isClosable: true,
-          });
+          toastError("Failed to sign in!", err?.message, "signin-request");
+
           authData.setData(null);
         })
         .finally(() => setIsLoading(false));
     },
-    [authData, toast]
+    [authData, toastSuccess, toastError]
   );
 
   if (authData.data?.user) {
