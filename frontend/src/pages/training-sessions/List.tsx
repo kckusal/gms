@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
 import Table from "rc-table";
 import { TrainingSession } from "../../types";
 import {
@@ -14,6 +14,7 @@ import {
 import { FiEye } from "react-icons/fi";
 import { BsFillTrashFill } from "react-icons/bs";
 import { AiFillEdit } from "react-icons/ai";
+import { RiHealthBookLine } from "react-icons/ri";
 import fetcher from "../../utils/fetcher";
 import { useToastNotify } from "../../hooks/useToastNotify";
 import { ViewDataDrawer } from "../../components/ViewDataDrawer";
@@ -21,17 +22,59 @@ import { ColumnType } from "rc-table/lib/interface";
 import { SaveDataDrawer } from "../../components/SaveDataDrawer";
 import { DatePicker } from "../../components/form/DatePicker";
 import { TimePicker } from "../../components/form/TimePicker";
+import { getUserPermissionByRole } from "../../permissions";
+import { AuthContext } from "../../providers/AuthProvider";
 
 export const ListTrainingSessionsPage = () => {
+  const auth = useContext(AuthContext);
   const { toastError, toastSuccess } = useToastNotify();
   const [activeDrawer, setActiveDrawer] = useState<"view" | "edit" | null>(
     null
   );
   const [isSaving, setIsSaving] = useState(false);
+  const [showOnlyMyBookings, setShowOnlyMyBookings] = useState(false);
   const [activeRecord, setActiveRecord] = useState<TrainingSession | null>(
     null
   );
   const [records, setRecords] = useState<null | TrainingSession[]>(null);
+
+  const userPermissions = getUserPermissionByRole({
+    resource: "training_session",
+    role: auth.data?.user?.role,
+  });
+
+  const bookSession = useCallback(
+    (training_session_id: number) => {
+      fetcher
+        .fetch("/my/booked-sessions", {
+          method: "POST",
+          body: JSON.stringify({ training_session_id }),
+        })
+        .then(() => {
+          toastSuccess("Session booked.", "", "book-session");
+        })
+        .catch((err) =>
+          toastError(
+            "Error booking training session!",
+            err?.message,
+            "book-session"
+          )
+        );
+    },
+    [toastError, toastSuccess]
+  );
+
+  const filteredRecords = useMemo(() => {
+    if (!records) return records;
+
+    if (showOnlyMyBookings) {
+      return records.filter((r) =>
+        r.attendance.some((a) => a.participant_id === auth.data?.user?.id)
+      );
+    }
+
+    return records;
+  }, [records, showOnlyMyBookings, auth.data?.user?.id]);
 
   const columns: ColumnType<TrainingSession>[] = [
     {
@@ -90,21 +133,40 @@ export const ListTrainingSessionsPage = () => {
               setActiveRecord(record);
             }}
           />
-          <IconButton
-            colorScheme="green"
-            icon={<AiFillEdit />}
-            aria-label="Edit"
-            onClick={() => {
-              setActiveDrawer("edit");
-              setActiveRecord(record);
-            }}
-          />
-          <IconButton
-            colorScheme="red"
-            variant="outline"
-            icon={<BsFillTrashFill />}
-            aria-label="Delete"
-          />
+          {userPermissions.includes("update") && (
+            <IconButton
+              colorScheme="green"
+              icon={<AiFillEdit />}
+              aria-label="Edit"
+              onClick={() => {
+                setActiveDrawer("edit");
+                setActiveRecord(record);
+              }}
+            />
+          )}
+
+          {auth.data?.user?.role === "MEMBER" && (
+            <IconButton
+              colorScheme="green"
+              icon={<RiHealthBookLine />}
+              aria-label="Edit"
+              disabled={record.attendance.some(
+                (a) => a.participant_id === auth.data?.user?.id
+              )}
+              onClick={() => {
+                bookSession(record.id);
+              }}
+            />
+          )}
+
+          {userPermissions.includes("delete") && (
+            <IconButton
+              colorScheme="red"
+              variant="outline"
+              icon={<BsFillTrashFill />}
+              aria-label="Delete"
+            />
+          )}
         </ButtonGroup>
       ),
       width: 80,
@@ -172,20 +234,36 @@ export const ListTrainingSessionsPage = () => {
     [activeRecord, toastError, toastSuccess]
   );
 
+  if (!userPermissions.includes("read")) {
+    return <Flex p={20}>User is not permitted to view this page.</Flex>;
+  }
+
   return (
     <VStack w="full" bg="#edf3f8" p={50} alignItems="flex-start" gap={8}>
       <Flex align="center" justify="space-between" width="full">
-        <Heading>All training sessions</Heading>
+        <Flex justify="space-between" align="center" width="full">
+          <Heading>All training sessions</Heading>
 
-        <Button
-          size="sm"
-          colorScheme="facebook"
-          onClick={() => {
-            setActiveRecord(null);
-            setActiveDrawer("edit");
-          }}>
-          Create New
-        </Button>
+          {auth.data?.user?.role === "MEMBER" && (
+            <Button
+              colorScheme="facebook"
+              onClick={() => setShowOnlyMyBookings((v) => !v)}>
+              {showOnlyMyBookings ? "Show All" : "Show only my bookings"}
+            </Button>
+          )}
+        </Flex>
+
+        {userPermissions.includes("create") && (
+          <Button
+            size="sm"
+            colorScheme="facebook"
+            onClick={() => {
+              setActiveRecord(null);
+              setActiveDrawer("edit");
+            }}>
+            Create New
+          </Button>
+        )}
       </Flex>
 
       {activeDrawer === "view" && activeRecord && (
@@ -288,7 +366,7 @@ export const ListTrainingSessionsPage = () => {
       )}
 
       <Box bg="white" p={6} width="full">
-        <Table columns={columns} data={records ?? []} rowKey="id" />
+        <Table columns={columns} data={filteredRecords ?? []} rowKey="id" />
       </Box>
     </VStack>
   );

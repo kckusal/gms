@@ -21,6 +21,14 @@ export interface User {
   role: SecurityRole;
 }
 
+interface TrainingSessionAttendace {
+  id: number;
+  attended: boolean;
+  note: string;
+  participant_id: number;
+  training_session_id: number;
+}
+
 export interface TrainingSession {
   id: number;
   start_date: string;
@@ -28,4 +36,5 @@ export interface TrainingSession {
   end_date: string;
   end_HHmm: string;
   trainer_id: number;
+  attendance: TrainingSessionAttendace[];
 }

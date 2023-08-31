@@ -7,7 +7,12 @@ export const getAllTrainingSessionAttendances = async (
   req: Request,
   res: Response,
 ) => {
-  const data = await prisma.trainingSessionAttendance.findMany();
+  const data = await prisma.trainingSessionAttendance.findMany({
+    include: {
+      participant: true,
+      training_session: true,
+    },
+  });
 
   return sendResponse(res, 200, { success: true, data });
 };

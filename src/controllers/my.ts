@@ -66,3 +66,40 @@ export const updateMyProfile = async (req: Request, res: Response) => {
 
   return sendResponse(res, 200, { success: true, data: result });
 };
+
+export const getMyBookedSessions = async (req: Request, res: Response) => {
+  const data = await prisma.trainingSessionAttendance.findFirst({
+    select: {
+      id: true,
+      attended: true,
+      training_session: {
+        select: {
+          id: true,
+          start_date: true,
+          start_HHmm: true,
+          end_date: true,
+          end_HHmm: true,
+          trainer_id: true,
+        },
+      },
+    },
+
+    where: { participant_id: Number(req.user?.id) },
+  });
+
+  return sendResponse(res, 200, { success: true, data });
+};
+
+export const createMyBooking = async (req: Request, res: Response) => {
+  const data = await prisma.trainingSessionAttendance.create({
+    data: {
+      training_session_id: req.body.training_session_id,
+      // rome-ignore lint/style/noNonNullAssertion: <explanation>
+      participant_id: req.user?.id!,
+      attended: false,
+      note: "",
+    },
+  });
+
+  return sendResponse(res, 200, { success: true, data });
+};

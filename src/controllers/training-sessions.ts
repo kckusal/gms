@@ -4,7 +4,12 @@ import { sendResponse } from "../utils/response";
 
 //* Fetches all training sessions
 export const getAllTrainingSessions = async (req: Request, res: Response) => {
-  const data = await prisma.trainingSession.findMany();
+  const data = await prisma.trainingSession.findMany({
+    include: {
+      attendance: true,
+      participants: true,
+    },
+  });
 
   return sendResponse(res, 200, { success: true, data });
 };
@@ -13,6 +18,10 @@ export const getAllTrainingSessions = async (req: Request, res: Response) => {
 export const getTrainingSessionById = async (req: Request, res: Response) => {
   const { id } = req.params;
   const data = await prisma.trainingSession.findFirst({
+    include: {
+      attendance: true,
+      participants: true,
+    },
     where: { id: Number(id) },
   });
 

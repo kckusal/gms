@@ -6,7 +6,13 @@ import HttpStatusCode from "../utils/httpStatusCodes";
 
 //* Fetches all users
 export const getAllUsers = async (req: Request, res: Response) => {
-  const users = await prisma.userAccount.findMany();
+  const users = await prisma.userAccount.findMany({
+    include: {
+      participant_of: true,
+      training_session_attendance: true,
+      trainer_for: true,
+    },
+  });
   return sendResponse(res, 200, { success: true, data: users });
 };
 
