@@ -106,7 +106,7 @@ const Register: FC = () => {
             <FormControl isRequired>
               <FormLabel>I am registering for role:</FormLabel>
               <Select name="role" placeholder="Select">
-                <option value="MEMBE">Gym Member</option>
+                <option value="MEMBER">Gym Member</option>
                 <option value="TRAINER">Gym Trainer</option>
                 <option value="ADMIN">Gym Administrator</option>
               </Select>
