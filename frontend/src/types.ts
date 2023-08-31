@@ -1,4 +1,4 @@
-type SecurityRole = "ADMIN" | "TRAINER" | "MEMBER";
+export type SecurityRole = "ADMIN" | "TRAINER" | "MEMBER";
 type AccountRequestStatus = "REQUESTED" | "CONFIRMED" | "DENIED";
 
 export type AuthData = {
