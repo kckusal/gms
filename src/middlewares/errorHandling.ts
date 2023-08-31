@@ -3,7 +3,9 @@ import "express-async-errors";
 import { sendResponse } from "../utils/response";
 
 export const catchAsyncErrors =
-  (func: (req: Request, res: Response, next: NextFunction) => Promise<void>) =>
+  (
+    func: (req: Request, res: Response, next: NextFunction) => Promise<unknown>,
+  ) =>
   (req: Request, res: Response, next: NextFunction) => {
     func(req, res, next).catch(next);
   };
