@@ -63,9 +63,11 @@ export const MyProfile = () => {
             const formData = new FormData(e.currentTarget);
             onSaveProfile(Object.fromEntries(formData));
           }}>
-          <Heading mb={4}>My Profile</Heading>
+          <Heading mb={4} textAlign="center">
+            My Profile
+          </Heading>
 
-          <VStack mt={8} mb={3} spacing={4} maxW={360}>
+          <VStack mt={8} mb={3} spacing={4} maxW={360} mx="auto">
             <FormControl isRequired>
               <FormLabel htmlFor="first_name">First name</FormLabel>
               <Input
@@ -125,15 +127,15 @@ export const MyProfile = () => {
 
               <strong>{profileData?.account_request_status ?? null}</strong>
             </FormControl>
-          </VStack>
 
-          <Button
-            mt={4}
-            colorScheme="facebook"
-            isLoading={isLoading}
-            type="submit">
-            Save
-          </Button>
+            <Button
+              mt={4}
+              colorScheme="facebook"
+              isLoading={isLoading}
+              type="submit">
+              Save
+            </Button>
+          </VStack>
         </form>
       </Box>
     </RequireAuth>
