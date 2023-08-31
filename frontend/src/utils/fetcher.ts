@@ -26,11 +26,12 @@ const apiFetcher = () => {
       },
       ...restInit,
     }).then(async (res) => {
-      const responseJson = await res.json();
-
-      if (responseJson.status === 401) {
+      if (res.status === 401) {
         window.location.href = "/auth/signout";
-      } else if (
+      }
+
+      const responseJson = await res.json();
+      if (
         responseJson?.success === false &&
         responseJson?.error?.message
       ) {
