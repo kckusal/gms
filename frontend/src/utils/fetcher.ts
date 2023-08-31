@@ -13,7 +13,7 @@ const apiFetcher = () => {
     const { headers = {}, ...restInit } = init;
 
     if (!options.skipToken && !jwtToken) {
-      return Promise.reject("Auth token is not configured!");
+      return Promise.reject(new Error("Auth token is not configured!"));
     }
 
     const url = new URL(apiRoute, import.meta.env.VITE_API_URL);
@@ -31,11 +31,36 @@ const apiFetcher = () => {
       }
 
       const responseJson = await res.json();
-      if (
-        responseJson?.success === false &&
-        responseJson?.error?.message
-      ) {
-        throw Error(responseJson.error.message);
+      if (responseJson?.success === false && responseJson?.error?.message) {
+        let details = [];
+
+        if (responseJson?.error?.details) {
+          let parsedDetails;
+          try {
+            parsedDetails = JSON.parse(responseJson.error.details);
+          } catch (e) {
+            parsedDetails = responseJson.error.details;
+          }
+
+          if (parsedDetails?.name === "ZodError") {
+            // eslint-disable-next-line @typescript-eslint/no-unused-vars
+            details =
+              parsedDetails?.issues
+                ?.map(
+                  (item: { path: string[]; message: string }) =>
+                    `[${item.path.join(".")}]: ${item?.message}`,
+                )
+                .filter(Boolean) || [];
+          }
+        }
+
+        const messageParts = [responseJson.error.message];
+
+        if (details.length > 0) {
+          messageParts.push(` » ${details.join(" » ")}`);
+        }
+
+        throw Error(messageParts.join(""));
       } else if (responseJson.success === true) {
         return responseJson;
       } else throw responseJson;
