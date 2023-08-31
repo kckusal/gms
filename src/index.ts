@@ -13,6 +13,7 @@ import { requireAuth } from "./middlewares/authenticate";
 import { UserAccount } from "@prisma/client";
 import { sendResponse } from "./utils/response";
 import HttpStatusCode from "./utils/httpStatusCodes";
+import { handleAsyncErrors } from "./middlewares/errorHandling";
 
 dotenv.config();
 
@@ -48,6 +49,8 @@ app.use((req, res, next) => {
     error: { message: `Endpoint not found for path: ${req.path}` },
   });
 });
+
+app.use(handleAsyncErrors);
 
 app.listen(3000, () => {
   console.log("REST API server ready at: http://localhost:3000");
